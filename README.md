@@ -1,6 +1,23 @@
-# ML Model Serving API
+# MLExpert - ML Model Serving API with Web Interface
 
-A Flask API that serves a machine learning model with endpoints for single and batch predictions.
+This repository contains a Flask application that serves both:
+1. A machine learning model API with endpoints for single and batch predictions
+2. A web interface that replicates the MLExpert "Get Started with AI" page
+
+## Project Structure
+
+```
+mcp_test_369/
+├── app.py                  # Main Flask application
+├── requirements.txt        # Python dependencies
+├── static/                 # Static assets
+│   ├── css/
+│   │   └── styles.css      # CSS styles for the web interface
+│   └── images/
+│       └── mlexpert-logo.svg  # Logo for the MLExpert page
+└── templates/
+    └── index.html          # HTML template for the MLExpert page
+```
 
 ## Setup
 
@@ -20,10 +37,10 @@ pip install -r requirements.txt
 python app.py
 ```
 
-## API Endpoints
+## ML API Endpoints
 
 ### Single Prediction
-- **URL**: `/predict/single`
+- **URL**: `/api/predict/single`
 - **Method**: POST
 - **Input Format**:
 ```json
@@ -33,7 +50,7 @@ python app.py
 ```
 
 ### Batch Prediction
-- **URL**: `/predict/batch`
+- **URL**: `/api/predict/batch`
 - **Method**: POST
 - **Input Format**:
 ```json
@@ -45,18 +62,27 @@ python app.py
 }
 ```
 
-## Example Usage
+## Web Interface
+
+The web interface is accessible at the root URL (`/`) and replicates the MLExpert "Get Started with AI" page with the following features:
+
+- Navigation header with logo, links, search bar, and user actions
+- Left sidebar with course navigation
+- Main content area with the "Get Started with AI" title and chatbot diagram
+- Right sidebar with page contents navigation
+
+## Example API Usage
 
 ### Single Prediction
 ```bash
-curl -X POST http://localhost:5000/predict/single \
+curl -X POST http://localhost:5000/api/predict/single \
     -H "Content-Type: application/json" \
     -d '{"features": [0.1, 0.2, 0.3, 0.4]}'
 ```
 
 ### Batch Prediction
 ```bash
-curl -X POST http://localhost:5000/predict/batch \
+curl -X POST http://localhost:5000/api/predict/batch \
     -H "Content-Type: application/json" \
     -d '{"features": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]]}'
 ```

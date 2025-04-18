@@ -1,0 +1,284 @@
+/* Main Styles for MLExpert Page */
+:root {
+  --primary-color: #0056b3;
+  --secondary-color: #f8f9fa;
+  --text-color: #333;
+  --border-color: #ddd;
+  --highlight-color: #007bff;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+header {
+  background-color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 30px;
+  margin-right: 10px;
+}
+
+.logo h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid var(--border-color);
+  padding: 20px;
+  padding-top: 80px;
+  overflow-y: auto;
+  height: 100vh;
+  position: fixed;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+.sidebar-section h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.sidebar-section a {
+  display: block;
+  text-decoration: none;
+  color: var(--text-color);
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.sidebar-section a:hover {
+  color: var(--highlight-color);
+}
+
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  padding-top: 80px;
+  margin-left: 250px;
+}
+
+.breadcrumb {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+.page-title {
+  font-size: 32px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.content-diagram {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.diagram-image {
+  max-width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.diagram-caption {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Page Contents Sidebar */
+.page-contents {
+  width: 200px;
+  background-color: white;
+  padding: 20px;
+  padding-top: 80px;
+  border-left: 1px solid var(--border-color);
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.page-contents h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.page-contents ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-contents li {
+  margin-bottom: 10px;
+}
+
+.page-contents a {
+  text-decoration: none;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.page-contents a:hover {
+  color: var(--highlight-color);
+}
+
+/* Chatbot Diagram Styles */
+.chatbot-diagram {
+  background-color: #1e1e1e;
+  color: white;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+}
+
+.chatbot-title {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 18px;
+}
+
+.diagram-elements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.diagram-node {
+  background-color: transparent;
+  border: 2px solid #0077cc;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+}
+
+.diagram-flow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.arrow {
+  width: 40px;
+  height: 2px;
+  background-color: #0077cc;
+  position: relative;
+}
+
+.arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -4px;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent #0077cc;
+}
+
+.input-output {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.input-box, .output-box {
+  border: 1px solid #444;
+  padding: 15px;
+  width: 45%;
+  border-radius: 4px;
+  text-align: center;
+}

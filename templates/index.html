@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLExpert - Get Started with AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/mlexpert-logo.png') }}" alt="MLExpert Logo">
+            <h1>MLExpert</h1>
+        </div>
+        <div class="nav-links">
+            <a href="#">Bootcamp</a>
+            <a href="#">Live Sessions</a>
+            <a href="#">Blog</a>
+            <a href="#">v2 Preview</a>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search MLExpert...">
+            <span>CTRL + K</span>
+        </div>
+        <div class="user-actions">
+            <button><i class="fas fa-bell"></i></button>
+            <button><i class="fas fa-video"></i></button>
+            <a href="#">SIGN OUT</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-nav">
+                <div class="sidebar-section">
+                    <h2>Get Started with AI</h2>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h2>Foundations - From Zero to AI Hero</h2>
+                    <a href="#">Python Essentials for AI Engineering</a>
+                    <a href="#">Math is the Language of AI</a>
+                    <a href="#">Start Simple - The Power of Linear Models</a>
+                    <a href="#">Essential PyTorch for Real-World Applications</a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h2>The Generative AI Revolution</h2>
+                    <a href="#">AI is Eating the World - the Rise of LLMs</a>
+                    <a href="#">The Art of the Prompt - Write Prompts that Work</a>
+                    <a href="#">Choose the Right LLM - Free vs. Proprietary Models</a>
+                    <a href="#">Lies, Damn Lies and Hallucinations - Evaluating Model Outputs</a>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h2>Build AI Products</h2>
+                    <a href="#">Sharpen Your AI Toolkit - Essential Tools for AI Developers</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="#">v2 Preview</a> > <a href="#">Get Started with AI</a>
+            </div>
+            
+            <h1 class="page-title">Get Started with AI</h1>
+            
+            <div class="content-diagram">
+                <div class="chatbot-diagram">
+                    <div class="chatbot-title">Chatbot</div>
+                    
+                    <div class="diagram-flow">
+                        <div class="diagram-node">Get Reviews</div>
+                        <div class="arrow"></div>
+                        <div class="diagram-node">Create System Prompt</div>
+                        <div class="arrow"></div>
+                        <div class="diagram-node">LLM</div>
+                    </div>
+                    
+                    <div style="height: 50px;"></div>
+                    
+                    <div class="diagram-flow">
+                        <div style="position: relative; height: 100px;">
+                            <div style="position: absolute; left: 0; top: 0; height: 100%; width: 2px; background-color: #0077cc;"></div>
+                            <div style="position: absolute; right: 0; top: 0; height: 100%; width: 2px; background-color: #0077cc;"></div>
+                            <div style="position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background-color: #0077cc;"></div>
+                            <div style="position: absolute; top: 0; left: 50%; height: 50%; width: 2px; background-color: #0077cc;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="diagram-flow">
+                        <div class="diagram-node">Chat CLI</div>
+                    </div>
+                    
+                    <div class="input-output">
+                        <div class="input-box">Question</div>
+                        <div class="output-box">Output</div>
+                    </div>
+                </div>
+                <div class="diagram-caption">Use AI to analyze customer reviews</div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Page Contents -->
+        <aside class="page-contents">
+            <h3>Page Contents</h3>
+            <ul>
+                <li><a href="#">Local AI</a></li>
+                <li><a href="#">Project Setup</a></li>
+                <li><a href="#">Data Origins</a></li>
+                <li><a href="#">Data</a></li>
+                <li><a href="#">Model Setup</a></li>
+                <li><a href="#">Prompt</a></li>
+                <li><a href="#">Create Chat Workflow</a></li>
+                <li><a href="#">Putting It All Together</a></li>
+                <li><a href="#">Conclusion</a></li>
+                <li><a href="#">References</a></li>
+            </ul>
+        </aside>
+    </div>
+
+    <script>
+        // Simple script to handle search bar focus
+        const searchInput = document.querySelector('.search-bar input');
+        searchInput.addEventListener('focus', () => {
+            document.querySelector('.search-bar').style.boxShadow = '0 0 0 2px var(--highlight-color)';
+        });
+        searchInput.addEventListener('blur', () => {
+            document.querySelector('.search-bar').style.boxShadow = 'none';
+        });
+    </script>
+</body>
+</html>

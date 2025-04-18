@@ -1,154 +1,221 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from '@/components/ui/use-toast';
-import authService, { User } from '@/lib/auth';
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
+
+interface User {
+  id: number;
+  email: string;
+  full_name: string;
+  profile_picture?: string;
+}
+
+type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
+  token: string | null;
+  status: AuthStatus;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, passwordConfirm: string, firstName: string, lastName: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
+  resetPassword: (email: string) => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
-  changePassword: (oldPassword: string, newPassword: string, newPasswordConfirm: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+// Mock user for development
+const mockUser: User = {
+  id: 1,
+  email: "user@example.com",
+  full_name: "John Doe",
+};
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const router = useRouter();
+  const [token, setToken] = useState<string | null>(null);
+  const [status, setStatus] = useState<AuthStatus>("loading");
+  const { toast } = useToast();
 
-  // Check if user is already logged in
+  // API base URL
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        if (authService.isAuthenticated()) {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        authService.logout();
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Check for token in localStorage
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-    checkAuth();
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      setStatus("authenticated");
+    } else {
+      setStatus("unauthenticated");
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
     try {
-      const userData = await authService.login({ email, password });
-      setUser(userData);
+      // In a real app, this would be an API call
+      // const response = await axios.post(`${API_URL}/auth/token/`, { email, password });
+      // const { access, refresh, user } = response.data;
+      
+      // Using mock data for development
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (email !== "user@example.com" || password !== "password") {
+        throw new Error("Invalid credentials");
+      }
+      
+      const access = "mock_access_token";
+      const refresh = "mock_refresh_token";
+      
+      // Store tokens and user data
+      localStorage.setItem("token", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("user", JSON.stringify(mockUser));
+      
+      setToken(access);
+      setUser(mockUser);
+      setStatus("authenticated");
+      
       toast({
-        title: 'Login successful',
-        description: `Welcome back, ${userData.first_name}!`,
+        title: "Login successful",
+        description: "Welcome back!",
       });
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.error("Login error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Login failed',
-        description: error instanceof Error ? error.message : 'Invalid credentials',
+        variant: "destructive",
+        title: "Login failed",
+        description: error.response?.data?.detail || error.message || "Invalid credentials",
       });
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const register = async (
-    email: string,
-    password: string,
-    passwordConfirm: string,
-    firstName: string,
-    lastName: string
-  ) => {
-    setIsLoading(true);
+  const register = async (email: string, password: string, fullName: string) => {
     try {
-      await authService.register({
+      // In a real app, this would be an API call
+      // const response = await axios.post(`${API_URL}/auth/register/`, {
+      //   email,
+      //   password,
+      //   full_name: fullName,
+      // });
+      // const { access, refresh, user } = response.data;
+      
+      // Using mock data for development
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newUser = {
+        ...mockUser,
         email,
-        password,
-        password_confirm: passwordConfirm,
-        first_name: firstName,
-        last_name: lastName,
-      });
+        full_name: fullName,
+      };
+      
+      const access = "mock_access_token";
+      const refresh = "mock_refresh_token";
+      
+      // Store tokens and user data
+      localStorage.setItem("token", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      
+      setToken(access);
+      setUser(newUser);
+      setStatus("authenticated");
       
       toast({
-        title: 'Registration successful',
-        description: 'Your account has been created successfully!',
+        title: "Registration successful",
+        description: "Your account has been created!",
       });
-      
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Registration failed:', error);
+    } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Registration failed',
-        description: error instanceof Error ? error.message : 'Could not create account',
+        variant: "destructive",
+        title: "Registration failed",
+        description: error.response?.data?.detail || error.message || "Could not create account",
       });
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const logout = () => {
-    authService.logout();
+    // Clear tokens and user data
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    
+    setToken(null);
     setUser(null);
-    router.push('/login');
+    setStatus("unauthenticated");
+    
     toast({
-      title: 'Logged out',
-      description: 'You have been logged out successfully.',
+      title: "Logged out",
+      description: "You have been logged out successfully.",
     });
   };
 
-  const updateProfile = async (data: Partial<User>) => {
-    setIsLoading(true);
+  const resetPassword = async (email: string) => {
     try {
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
+      // In a real app, this would be an API call
+      // await axios.post(`${API_URL}/auth/reset-password/`, { email });
+      
+      // Using mock data for development
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been updated successfully.',
+        title: "Password reset email sent",
+        description: "Check your email for instructions to reset your password.",
       });
-    } catch (error) {
-      console.error('Profile update failed:', error);
+    } catch (error: any) {
+      console.error("Password reset error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Profile update failed',
-        description: error instanceof Error ? error.message : 'Could not update profile',
+        variant: "destructive",
+        title: "Password reset failed",
+        description: error.response?.data?.detail || error.message || "Could not send reset email",
       });
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const changePassword = async (oldPassword: string, newPassword: string, newPasswordConfirm: string) => {
-    setIsLoading(true);
+  const updateProfile = async (data: Partial<User>) => {
     try {
-      await authService.changePassword(oldPassword, newPassword, newPasswordConfirm);
+      // In a real app, this would be an API call
+      // const response = await axios.patch(`${API_URL}/users/me/`, data, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
+      // const updatedUser = response.data;
+      
+      // Using mock data for development
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      
+      const updatedUser = {
+        ...user,
+        ...data,
+      };
+      
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
       toast({
-        title: 'Password changed',
-        description: 'Your password has been changed successfully.',
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
       });
-    } catch (error) {
-      console.error('Password change failed:', error);
+    } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Password change failed',
-        description: error instanceof Error ? error.message : 'Could not change password',
+        variant: "destructive",
+        title: "Profile update failed",
+        description: error.response?.data?.detail || error.message || "Could not update profile",
       });
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -156,13 +223,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user,
-        isLoading,
-        isAuthenticated: !!user,
+        token,
+        status,
         login,
         register,
         logout,
+        resetPassword,
         updateProfile,
-        changePassword,
       }}
     >
       {children}
@@ -170,12 +237,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
-
-export default AuthContext;

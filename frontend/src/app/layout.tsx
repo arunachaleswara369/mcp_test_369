@@ -1,20 +1,22 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
-import { Toaster } from '@/components/ui/toaster'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DocumentProvider } from '@/contexts/DocumentContext';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'DocHub - Document Management System',
-  description: 'A modern document management system built with Next.js and Django',
-}
+  title: 'DocHub - Modern Document Management',
+  description: 'A comprehensive document management system with collaboration features',
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -25,10 +27,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <AuthProvider>
+            <DocumentProvider>
+              {children}
+              <Toaster />
+            </DocumentProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

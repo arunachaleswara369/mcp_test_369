@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import joblib
@@ -12,7 +12,8 @@ X_dummy = np.random.rand(100, 4)
 y_dummy = np.random.rand(100)
 model.fit(X_dummy, y_dummy)
 
-@app.route('/predict/single', methods=['POST'])
+# API endpoints for ML model serving
+@app.route('/api/predict/single', methods=['POST'])
 def predict_single():
     try:
         data = request.get_json()
@@ -28,7 +29,7 @@ def predict_single():
             'message': str(e)
         }), 400
 
-@app.route('/predict/batch', methods=['POST'])
+@app.route('/api/predict/batch', methods=['POST'])
 def predict_batch():
     try:
         data = request.get_json()
@@ -44,6 +45,11 @@ def predict_batch():
             'message': str(e)
         }), 400
 
+# Web page routes
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)

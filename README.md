@@ -1,88 +1,104 @@
-# MLExpert - ML Model Serving API with Web Interface
+# DocHub - Modern Document Management System
 
-This repository contains a Flask application that serves both:
-1. A machine learning model API with endpoints for single and batch predictions
-2. A web interface that replicates the MLExpert "Get Started with AI" page
+A full-fledged document management website built with a modern tech stack.
+
+## Tech Stack
+
+### Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- React
+- Tailwind CSS
+- shadcn/ui components
+- Aceternity UI for animations and effects
+- Tanstack Query for data fetching
+
+### Backend
+- Django 4.2
+- Django REST Framework
+- PostgreSQL
+- JWT Authentication
 
 ## Project Structure
 
 ```
 mcp_test_369/
-├── app.py                  # Main Flask application
-├── requirements.txt        # Python dependencies
-├── static/                 # Static assets
-│   ├── css/
-│   │   └── styles.css      # CSS styles for the web interface
-│   └── images/
-│       └── mlexpert-logo.svg  # Logo for the MLExpert page
-└── templates/
-    └── index.html          # HTML template for the MLExpert page
+├── frontend/                # Next.js frontend application
+│   ├── src/
+│   │   ├── app/             # Next.js app router
+│   │   ├── components/      # React components
+│   │   ├── lib/             # Utility functions
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── types/           # TypeScript type definitions
+│   │   └── styles/          # Global styles
+│   ├── public/              # Static assets
+│   ├── package.json         # Frontend dependencies
+│   └── tsconfig.json        # TypeScript configuration
+│
+├── backend/                 # Django backend application
+│   ├── dochub/              # Main Django project
+│   │   ├── settings.py      # Django settings
+│   │   ├── urls.py          # URL routing
+│   │   └── wsgi.py          # WSGI configuration
+│   ├── documents/           # Documents app
+│   ├── users/               # User management app
+│   ├── api/                 # API app
+│   ├── requirements.txt     # Backend dependencies
+│   └── manage.py            # Django management script
+│
+└── docker/                  # Docker configuration
+    ├── docker-compose.yml   # Docker Compose configuration
+    ├── Dockerfile.frontend  # Frontend Dockerfile
+    └── Dockerfile.backend   # Backend Dockerfile
 ```
 
-## Setup
+## Features
 
-1. Clone the repository:
+- **User Authentication**: Sign up, login, password reset
+- **Document Management**: Upload, view, edit, delete, and share documents
+- **Document Versioning**: Track changes and maintain document history
+- **Search Functionality**: Full-text search across documents
+- **Collaborative Editing**: Real-time collaborative document editing
+- **Access Control**: Fine-grained permissions for documents
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Dark Mode**: Toggle between light and dark themes
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Python 3.9+
+- PostgreSQL
+- Docker (optional)
+
+### Development Setup
+
+#### Frontend
 ```bash
-git clone https://github.com/arunachaleswara369/mcp_test_369.git
-cd mcp_test_369
+cd frontend
+npm install
+npm run dev
 ```
 
-2. Install dependencies:
+#### Backend
 ```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-3. Run the application:
+### Docker Setup
 ```bash
-python app.py
+docker-compose up
 ```
 
-## ML API Endpoints
+## API Documentation
 
-### Single Prediction
-- **URL**: `/api/predict/single`
-- **Method**: POST
-- **Input Format**:
-```json
-{
-    "features": [0.1, 0.2, 0.3, 0.4]
-}
-```
+API documentation is available at `/api/docs/` when running the backend server.
 
-### Batch Prediction
-- **URL**: `/api/predict/batch`
-- **Method**: POST
-- **Input Format**:
-```json
-{
-    "features": [
-        [0.1, 0.2, 0.3, 0.4],
-        [0.5, 0.6, 0.7, 0.8]
-    ]
-}
-```
+## License
 
-## Web Interface
-
-The web interface is accessible at the root URL (`/`) and replicates the MLExpert "Get Started with AI" page with the following features:
-
-- Navigation header with logo, links, search bar, and user actions
-- Left sidebar with course navigation
-- Main content area with the "Get Started with AI" title and chatbot diagram
-- Right sidebar with page contents navigation
-
-## Example API Usage
-
-### Single Prediction
-```bash
-curl -X POST http://localhost:5000/api/predict/single \
-    -H "Content-Type: application/json" \
-    -d '{"features": [0.1, 0.2, 0.3, 0.4]}'
-```
-
-### Batch Prediction
-```bash
-curl -X POST http://localhost:5000/api/predict/batch \
-    -H "Content-Type: application/json" \
-    -d '{"features": [[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8]]}'
-```
+This project is licensed under the MIT License - see the LICENSE file for details.

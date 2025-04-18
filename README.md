@@ -1,104 +1,181 @@
 # DocHub - Modern Document Management System
 
-A full-fledged document management website built with a modern tech stack.
+DocHub is a comprehensive, full-stack document management system built with modern web technologies. It provides a robust platform for storing, sharing, and collaborating on documents with a sleek, responsive user interface.
 
-## Tech Stack
+## 🚀 Features
+
+- **User Authentication**
+  - Email-based authentication
+  - JWT token-based security
+  - User profiles with customizable settings
+
+- **Document Management**
+  - Upload and store documents
+  - Version control and history tracking
+  - Document metadata and categorization
+  - Advanced search capabilities
+
+- **Collaboration Tools**
+  - Document sharing with customizable permissions
+  - Real-time commenting
+  - Activity tracking
+  - Notification system
+
+- **Modern UI/UX**
+  - Responsive design for all devices
+  - Dark/light mode support
+  - Interactive animations and transitions
+  - Intuitive navigation and workflows
+
+## 🔧 Tech Stack
 
 ### Frontend
-- Next.js 14 (App Router)
-- TypeScript
-- React
-- Tailwind CSS
-- shadcn/ui components
-- Aceternity UI for animations and effects
-- Tanstack Query for data fetching
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui, Aceternity UI
+- **State Management**: React Hooks
+- **Animation**: Framer Motion
 
 ### Backend
-- Django 4.2
-- Django REST Framework
-- PostgreSQL
-- JWT Authentication
+- **Framework**: Django 4.2
+- **API**: Django REST Framework
+- **Database**: PostgreSQL
+- **Authentication**: JWT-based auth
+- **Documentation**: Swagger/ReDoc
 
-## Project Structure
+## 📂 Project Structure
 
 ```
-mcp_test_369/
-├── frontend/                # Next.js frontend application
-│   ├── src/
-│   │   ├── app/             # Next.js app router
-│   │   ├── components/      # React components
-│   │   ├── lib/             # Utility functions
-│   │   ├── hooks/           # Custom React hooks
-│   │   ├── types/           # TypeScript type definitions
-│   │   └── styles/          # Global styles
-│   ├── public/              # Static assets
-│   ├── package.json         # Frontend dependencies
-│   └── tsconfig.json        # TypeScript configuration
+dochub/
+├── frontend/           # Next.js frontend application
+│   ├── public/         # Static assets
+│   ├── src/            # Source code
+│   │   ├── app/        # Next.js app router
+│   │   ├── components/ # React components
+│   │   ├── lib/        # Utility functions
+│   │   └── styles/     # Global styles
+│   ├── package.json    # Frontend dependencies
+│   └── README.md       # Frontend documentation
 │
-├── backend/                 # Django backend application
-│   ├── dochub/              # Main Django project
-│   │   ├── settings.py      # Django settings
-│   │   ├── urls.py          # URL routing
-│   │   └── wsgi.py          # WSGI configuration
-│   ├── documents/           # Documents app
-│   ├── users/               # User management app
-│   ├── api/                 # API app
-│   ├── requirements.txt     # Backend dependencies
-│   └── manage.py            # Django management script
+├── backend/            # Django backend application
+│   ├── dochub/         # Main Django project
+│   ├── api/            # API endpoints
+│   ├── users/          # User management app
+│   ├── documents/      # Document management app
+│   ├── requirements.txt # Backend dependencies
+│   └── README.md       # Backend documentation
 │
-└── docker/                  # Docker configuration
-    ├── docker-compose.yml   # Docker Compose configuration
-    ├── Dockerfile.frontend  # Frontend Dockerfile
-    └── Dockerfile.backend   # Backend Dockerfile
+└── README.md           # Main project documentation
 ```
 
-## Features
-
-- **User Authentication**: Sign up, login, password reset
-- **Document Management**: Upload, view, edit, delete, and share documents
-- **Document Versioning**: Track changes and maintain document history
-- **Search Functionality**: Full-text search across documents
-- **Collaborative Editing**: Real-time collaborative document editing
-- **Access Control**: Fine-grained permissions for documents
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Dark Mode**: Toggle between light and dark themes
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ and npm/yarn
 - Python 3.9+
 - PostgreSQL
-- Docker (optional)
 
-### Development Setup
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```
+   cd frontend
+   ```
 
-#### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+2. Install dependencies:
+   ```
+   npm install
+   # or
+   yarn install
+   ```
 
-#### Backend
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+3. Run the development server:
+   ```
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-### Docker Setup
-```bash
-docker-compose up
-```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## API Documentation
+### Backend Setup
+1. Navigate to the backend directory:
+   ```
+   cd backend
+   ```
 
-API documentation is available at `/api/docs/` when running the backend server.
+2. Create a virtual environment:
+   ```
+   python -m venv venv
+   ```
 
-## License
+3. Activate the virtual environment:
+   - Windows:
+     ```
+     venv\Scripts\activate
+     ```
+   - macOS/Linux:
+     ```
+     source venv/bin/activate
+     ```
+
+4. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+5. Create a `.env` file based on `.env.example`:
+   ```
+   cp .env.example .env
+   ```
+   Then edit the `.env` file with your specific configuration.
+
+6. Run migrations:
+   ```
+   python manage.py migrate
+   ```
+
+7. Create a superuser:
+   ```
+   python manage.py createsuperuser
+   ```
+
+8. Run the development server:
+   ```
+   python manage.py runserver
+   ```
+
+9. The API will be available at [http://localhost:8000/api/](http://localhost:8000/api/)
+
+## 📱 Key Application Pages
+
+- **Home**: Landing page with feature highlights
+- **Login/Register**: User authentication
+- **Dashboard**: Document management interface
+- **Document Viewer**: View and interact with documents
+- **User Profile**: Manage user settings and preferences
+
+## 🔒 Security Features
+
+- JWT-based authentication
+- Password hashing and validation
+- Permission-based access control
+- CSRF protection
+- Secure file handling
+
+## 🌙 Dark Mode Support
+
+DocHub includes a built-in theme switcher that allows users to toggle between light and dark modes based on their preference.
+
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgements
+
+- [Next.js](https://nextjs.org/)
+- [Django](https://www.djangoproject.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Django REST Framework](https://www.django-rest-framework.org/)

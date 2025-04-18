@@ -1,235 +1,376 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { 
-  FileText, 
-  FolderPlus, 
-  Upload, 
-  Search, 
-  Filter, 
-  MoreVertical,
-  Star,
-  Clock,
-  Users,
-  Trash
-} from "lucide-react"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDocuments } from "@/contexts/DocumentContext";
+import { Document } from "@/lib/documents";
+import { FileIcon, FolderIcon, ShareIcon, PlusIcon, DownloadIcon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
-// Mock data for documents
-const mockDocuments = [
-  {
-    id: "doc-1",
-    title: "Project Proposal",
-    type: "pdf",
-    size: "2.4 MB",
-    modified: "2025-04-15",
-    shared: true,
-    starred: true,
-  },
-  {
-    id: "doc-2",
-    title: "Financial Report Q1",
-    type: "xlsx",
-    size: "1.8 MB",
-    modified: "2025-04-10",
-    shared: true,
-    starred: false,
-  },
-  {
-    id: "doc-3",
-    title: "Meeting Notes",
-    type: "docx",
-    size: "0.5 MB",
-    modified: "2025-04-17",
-    shared: false,
-    starred: false,
-  },
-  {
-    id: "doc-4",
-    title: "Product Roadmap",
-    type: "pptx",
-    size: "3.2 MB",
-    modified: "2025-04-05",
-    shared: true,
-    starred: true,
-  },
-  {
-    id: "doc-5",
-    title: "User Research",
-    type: "pdf",
-    size: "4.7 MB",
-    modified: "2025-04-12",
-    shared: false,
-    starred: false,
-  },
-]
+export default function DashboardPage() {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { 
+    userDocuments, 
+    sharedDocuments, 
+    fetchUserDocuments, 
+    fetchSharedDocuments, 
+    isLoading: documentsLoading,
+    createDocument,
+    deleteDocument
+  } = useDocuments();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("my-documents");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [newDocument, setNewDocument] = useState({
+    title: "",
+    description: "",
+    isPublic: false,
+  });
+  const [openDialog, setOpenDialog] = useState(false);
 
-export default function Dashboard() {
-  const [selectedFilter, setSelectedFilter] = useState<string>("all")
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  
-  // Filter documents based on selected filter and search query
-  const filteredDocuments = mockDocuments.filter(doc => {
-    let matchesFilter = true
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  // Fetch documents when component mounts
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserDocuments();
+      fetchSharedDocuments();
+    }
+  }, [isAuthenticated, fetchUserDocuments, fetchSharedDocuments]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadFile(e.target.files[0]);
+    }
+  };
+
+  const handleCreateDocument = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    if (selectedFilter === "starred") {
-      matchesFilter = doc.starred
-    } else if (selectedFilter === "shared") {
-      matchesFilter = doc.shared
+    if (!uploadFile) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a file to upload",
+      });
+      return;
     }
     
-    const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase())
+    try {
+      setIsUploading(true);
+      await createDocument(
+        newDocument.title,
+        newDocument.description,
+        uploadFile,
+        newDocument.isPublic
+      );
+      
+      // Reset form
+      setNewDocument({
+        title: "",
+        description: "",
+        isPublic: false,
+      });
+      setUploadFile(null);
+      setOpenDialog(false);
+      
+    } catch (error) {
+      console.error("Error creating document:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create document",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteDocument = async (slug: string) => {
+    try {
+      await deleteDocument(slug);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete document",
+      });
+    }
+  };
+
+  const getFileIcon = (fileType: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      pdf: <FileIcon className="h-6 w-6 text-red-500" />,
+      doc: <FileIcon className="h-6 w-6 text-blue-500" />,
+      docx: <FileIcon className="h-6 w-6 text-blue-500" />,
+      xls: <FileIcon className="h-6 w-6 text-green-500" />,
+      xlsx: <FileIcon className="h-6 w-6 text-green-500" />,
+      ppt: <FileIcon className="h-6 w-6 text-orange-500" />,
+      pptx: <FileIcon className="h-6 w-6 text-orange-500" />,
+      jpg: <FileIcon className="h-6 w-6 text-purple-500" />,
+      jpeg: <FileIcon className="h-6 w-6 text-purple-500" />,
+      png: <FileIcon className="h-6 w-6 text-purple-500" />,
+      txt: <FileIcon className="h-6 w-6 text-gray-500" />,
+    };
     
-    return matchesFilter && matchesSearch
-  })
+    return iconMap[fileType.toLowerCase()] || <FileIcon className="h-6 w-6" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const DocumentCard = ({ document }: { document: Document }) => (
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardHeader className="p-4 pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg font-medium truncate">{document.title}</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="12" cy="5" r="1" />
+                  <circle cx="12" cy="19" r="1" />
+                </svg>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/documents/${document.slug}`}>
+                  View
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href={document.file} download target="_blank" rel="noopener noreferrer" className="flex w-full">
+                  Download
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/documents/${document.slug}/share`}>
+                  Share
+                </Link>
+              </DropdownMenuItem>
+              {document.owner.id === user?.id && (
+                <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteDocument(document.slug)}>
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <span className="truncate">{document.description || "No description"}</span>
+        </div>
+        <div className="mt-4 flex items-center gap-2">
+          {getFileIcon(document.file_type)}
+          <div className="flex flex-col">
+            <span className="text-xs font-medium">{document.file_type.toUpperCase()}</span>
+            <span className="text-xs text-muted-foreground">{formatFileSize(document.file_size)}</span>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="p-4 pt-0 flex justify-between items-center text-xs text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <span>Updated {formatDistanceToNow(new Date(document.updated_at), { addSuffix: true })}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {document.is_public && (
+            <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 px-2 py-0.5 rounded-full text-xs">
+              Public
+            </span>
+          )}
+          {document.owner.id !== user?.id && (
+            <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 px-2 py-0.5 rounded-full text-xs">
+              Shared
+            </span>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
+  );
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 container py-6">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">My Documents</h1>
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm">
-              <FolderPlus className="mr-2 h-4 w-4" />
-              New Folder
+    <div className="container mx-auto py-6 max-w-7xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Upload Document
             </Button>
-            <Button size="sm">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload
-            </Button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="col-span-1 space-y-6">
-            <div className="bg-card rounded-lg border p-4">
-              <h2 className="font-semibold mb-4">Filters</h2>
-              <nav className="space-y-2">
-                <button
-                  onClick={() => setSelectedFilter("all")}
-                  className={`flex items-center w-full p-2 rounded-md text-sm ${
-                    selectedFilter === "all" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
-                >
-                  <FileText className="mr-2 h-4 w-4" />
-                  All Documents
-                </button>
-                <button
-                  onClick={() => setSelectedFilter("starred")}
-                  className={`flex items-center w-full p-2 rounded-md text-sm ${
-                    selectedFilter === "starred" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
-                >
-                  <Star className="mr-2 h-4 w-4" />
-                  Starred
-                </button>
-                <button
-                  onClick={() => setSelectedFilter("shared")}
-                  className={`flex items-center w-full p-2 rounded-md text-sm ${
-                    selectedFilter === "shared" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Shared
-                </button>
-                <button
-                  onClick={() => setSelectedFilter("recent")}
-                  className={`flex items-center w-full p-2 rounded-md text-sm ${
-                    selectedFilter === "recent" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
-                >
-                  <Clock className="mr-2 h-4 w-4" />
-                  Recent
-                </button>
-                <button
-                  onClick={() => setSelectedFilter("trash")}
-                  className={`flex items-center w-full p-2 rounded-md text-sm ${
-                    selectedFilter === "trash" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
-                >
-                  <Trash className="mr-2 h-4 w-4" />
-                  Trash
-                </button>
-              </nav>
-            </div>
-            
-            <div className="bg-card rounded-lg border p-4">
-              <h2 className="font-semibold mb-4">Storage</h2>
-              <div className="space-y-2">
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div className="bg-primary h-2.5 rounded-full w-[45%]"></div>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload New Document</DialogTitle>
+              <DialogDescription>
+                Upload a document to your personal collection.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreateDocument}>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={newDocument.title}
+                    onChange={(e) => setNewDocument({ ...newDocument, title: e.target.value })}
+                    placeholder="Document title"
+                    required
+                  />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium">4.5 GB</span> of 10 GB used
-                </p>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newDocument.description}
+                    onChange={(e) => setNewDocument({ ...newDocument, description: e.target.value })}
+                    placeholder="Add a description (optional)"
+                    rows={3}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="file">File</Label>
+                  <Input
+                    id="file"
+                    type="file"
+                    onChange={handleFileChange}
+                    required
+                  />
+                  {uploadFile && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {uploadFile.name} ({formatFileSize(uploadFile.size)})
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="isPublic"
+                    checked={newDocument.isPublic}
+                    onCheckedChange={(checked) => 
+                      setNewDocument({ ...newDocument, isPublic: checked as boolean })
+                    }
+                  />
+                  <Label htmlFor="isPublic">Make document public</Label>
+                </div>
               </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setOpenDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? "Uploading..." : "Upload"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Tabs defaultValue="my-documents" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="my-documents" className="flex items-center">
+            <FolderIcon className="h-4 w-4 mr-2" />
+            My Documents
+          </TabsTrigger>
+          <TabsTrigger value="shared-with-me" className="flex items-center">
+            <ShareIcon className="h-4 w-4 mr-2" />
+            Shared with Me
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="my-documents">
+          {documentsLoading ? (
+            <div className="flex justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
             </div>
-          </div>
-          
-          {/* Main content */}
-          <div className="col-span-1 md:col-span-3 space-y-6">
-            {/* Search and filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search documents..."
-                  className="w-full pl-10 pr-4 py-2 border rounded-md bg-background"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
+          ) : userDocuments.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userDocuments.map((document) => (
+                <DocumentCard key={document.id} document={document} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 border rounded-lg bg-muted/20">
+              <FolderIcon className="h-12 w-12 mx-auto text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">No documents yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Upload your first document to get started.
+              </p>
+              <Button className="mt-4" onClick={() => setOpenDialog(true)}>
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Upload Document
               </Button>
             </div>
-            
-            {/* Documents list */}
-            <div className="bg-card rounded-lg border overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 p-4 border-b text-sm font-medium text-muted-foreground">
-                <div className="col-span-6">Name</div>
-                <div className="col-span-2">Size</div>
-                <div className="col-span-3">Modified</div>
-                <div className="col-span-1"></div>
-              </div>
-              
-              <div className="divide-y">
-                {filteredDocuments.length > 0 ? (
-                  filteredDocuments.map((doc) => (
-                    <div key={doc.id} className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-muted/50">
-                      <div className="col-span-6 flex items-center">
-                        <FileText className="mr-3 h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">{doc.title}</p>
-                          <p className="text-xs text-muted-foreground uppercase">{doc.type}</p>
-                        </div>
-                      </div>
-                      <div className="col-span-2 text-sm text-muted-foreground">{doc.size}</div>
-                      <div className="col-span-3 text-sm text-muted-foreground">{doc.modified}</div>
-                      <div className="col-span-1 flex justify-end">
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-8 text-center">
-                    <p className="text-muted-foreground">No documents found</p>
-                  </div>
-                )}
-              </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="shared-with-me">
+          {documentsLoading ? (
+            <div className="flex justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
             </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
+          ) : sharedDocuments.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sharedDocuments.map((document) => (
+                <DocumentCard key={document.id} document={document} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 border rounded-lg bg-muted/20">
+              <ShareIcon className="h-12 w-12 mx-auto text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">No shared documents</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Documents shared with you will appear here.
+              </p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
-  )
+  );
 }
